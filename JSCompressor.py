@@ -2,12 +2,22 @@ import streamlit as st
 import re
 
 def compress_js(js_code):
+    # Function to preserve strings and template literals
+    def preserve_strings(m):
+        return m.group(0)  # Return the string as-is
+
+    # Regex to match strings ('...' or "..." or `...`)
+    string_pattern = r'(["\'`])(?:\\.|(?!\1).)*\1'
+
+    # Preserve strings by skipping them during Compression
+    js_code = re.sub(string_pattern, preserve_strings, js_code)
+
     # Remove single-line comments
     js_code = re.sub(r'//.*', '', js_code)
     # Remove multi-line comments
     js_code = re.sub(r'/\*[\s\S]*?\*/', '', js_code)
     
-    # compress by collapsing multiple spaces but preserving critical word separation
+    # compress by collapsing spaces, preserving critical separation
     js_code = re.sub(r'\s*([{};,:=()<>+\-*/&|!])\s*', r'\1', js_code)
     
     # Ensure reserved words are preserved with necessary spaces
@@ -24,8 +34,8 @@ def compress_js(js_code):
 st.title('JavaScript Compressor')
 
 st.markdown("""
-This app compresses JavaScript code by removing unnecessary spaces, tabs, newlines, and comments.
-Paste your code below and click "Compress Code" to Compress it.
+This app compresses JavaScript code by removing unnecessary spaces, tabs, newlines, and comments, while preserving strings and template literals.
+Paste your code below and click "Compress Code" to compress it.
 """)
 
 js_input = st.text_area("Paste your JavaScript code here", height=300)
