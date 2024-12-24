@@ -7,7 +7,7 @@ def compress_js(js_code):
     # Remove multi-line comments
     js_code = re.sub(r'/\*[\s\S]*?\*/', '', js_code)
     
-    # Minify by collapsing multiple spaces but preserving critical word separation
+    # compress by collapsing multiple spaces but preserving critical word separation
     js_code = re.sub(r'\s*([{};,:=()<>+\-*/&|!])\s*', r'\1', js_code)
     
     # Ensure reserved words are preserved with necessary spaces
@@ -25,7 +25,7 @@ st.title('JavaScript Compressor')
 
 st.markdown("""
 This app compresses JavaScript code by removing unnecessary spaces, tabs, newlines, and comments.
-Paste your code below and click "Compress Code" to minify it.
+Paste your code below and click "Compress Code" to Compress it.
 """)
 
 js_input = st.text_area("Paste your JavaScript code here", height=300)
