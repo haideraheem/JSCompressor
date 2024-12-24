@@ -1,6 +1,5 @@
 import streamlit as st
 import re
-import pyperclip  # Import pyperclip to copy text to clipboard
 
 # Function to remove spaces, tabs, and newlines from JS code
 def compress_js(js_code):
@@ -23,10 +22,6 @@ js_input = st.text_area("Paste your JavaScript code here", height=300)
 if 'minified_code' not in st.session_state:
     st.session_state.minified_code = None
 
-# Initialize show_copy_button if it doesn't exist
-if 'show_copy_button' not in st.session_state:
-    st.session_state.show_copy_button = False
-
 # Button to trigger the minification
 if st.button('Compress Code'):
     if js_input.strip():  # Ensure input is not empty
@@ -36,17 +31,5 @@ if st.button('Compress Code'):
         # Show the minified code
         st.subheader("Compressed JavaScript Code")
         st.code(st.session_state.minified_code, language="javascript")
-        
-        # Show "Copy Code" button only after compression
-        st.session_state.show_copy_button = True
     else:
         st.error("Please enter some JavaScript code to compress.")
-
-# Only show "Copy Code" button after minified code exists
-if st.session_state.show_copy_button:
-    if st.button('Copy Code'):
-        # Use pyperclip to copy the minified code to clipboard
-        pyperclip.copy(st.session_state.minified_code)
-        st.success("Code copied to clipboard!")  # Display success message
-        # Reset the state after copying (optional)
-        st.session_state.show_copy_button = False
