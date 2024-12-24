@@ -23,6 +23,10 @@ js_input = st.text_area("Paste your JavaScript code here", height=300)
 if 'minified_code' not in st.session_state:
     st.session_state.minified_code = None
 
+# Initialize show_copy_button if it doesn't exist
+if 'show_copy_button' not in st.session_state:
+    st.session_state.show_copy_button = False
+
 # Button to trigger the minification
 if st.button('Compress Code'):
     if js_input.strip():  # Ensure input is not empty
