@@ -33,6 +33,9 @@ def compress_js(js_code):
     # Remove unnecessary spaces around symbols
     js_code = re.sub(r'\s*([{};,:=()<>+\-*/&|!])\s*', r'\1', js_code)
 
+    # Remove spaces before and after "?" (excluding inside strings)
+    js_code = re.sub(r'\s*\?\s*', '?', js_code)
+
     # Ensure reserved words are preserved with necessary spaces
     reserved_words = r'\b(await|break|case|catch|class|const|continue|debugger|default|' \
                      r'delete|do|else|enum|export|extends|false|finally|for|function|' \
