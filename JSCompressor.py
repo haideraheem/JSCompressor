@@ -4,44 +4,41 @@ import re
 import re
 
 def compress_js(js_code):
-    # Function to preserve strings and template literals
+    # Preserve strings and template literals
     def preserve_strings(m):
-        return m.group(0)  # Return the string as-is
+        return m.group(0)  
 
-    # Regex to match strings ('...' or "..." or `...`)
+    # Match single and double-quoted strings or template literals
     string_pattern = r'(["\'`])(?:\\.|(?!\1).)*\1'
-    
-    # Preserve strings before modifying the code
     js_code = re.sub(string_pattern, preserve_strings, js_code)
 
-    # **Protect URLs from being modified**
-    url_pattern = r'https?://[^\s]+'
-    urls = re.findall(url_pattern, js_code)  # Extract URLs
+    # Preserve URLs by replacing them temporarily
+    url_pattern = r'https?://[^\s]+|(?<=\s)//[^\s]+'
+    urls = re.findall(url_pattern, js_code)
     url_placeholders = {url: f"__URL_{i}__" for i, url in enumerate(urls)}
 
     for url, placeholder in url_placeholders.items():
         js_code = js_code.replace(url, placeholder)
 
-    # **Remove single-line comments but NOT URLs**
-    js_code = re.sub(r'(^|\s)//(?!.*__URL_).*', '', js_code)  # Remove only actual comments
+    # Remove single-line comments (not URLs)
+    js_code = re.sub(r'(?<!:)//.*', '', js_code)  
 
-    # **Remove multi-line comments**
+    # Remove multi-line comments
     js_code = re.sub(r'/\*[\s\S]*?\*/', '', js_code)
 
-    # **Restore URLs back into the code**
+    # Restore URLs
     for url, placeholder in url_placeholders.items():
         js_code = js_code.replace(placeholder, url)
 
-    # **Compress by collapsing spaces while preserving critical separation**
+    # Remove unnecessary spaces around symbols
     js_code = re.sub(r'\s*([{};,:=()<>+\-*/&|!])\s*', r'\1', js_code)
 
-    # **Ensure reserved words are preserved with necessary spaces**
+    # Ensure reserved words are preserved with necessary spaces
     reserved_words = r'\b(await|break|case|catch|class|const|continue|debugger|default|' \
                      r'delete|do|else|enum|export|extends|false|finally|for|function|' \
                      r'if|import|in|instanceof|new|null|return|super|switch|this|throw|' \
                      r'true|try|typeof|var|void|while|with|yield|arguments|eval|' \
                      r'implements|interface|package|private|protected|public|static|let)\b'
-
     js_code = re.sub(rf'{reserved_words}\s+', r'\1 ', js_code)
 
     return js_code
