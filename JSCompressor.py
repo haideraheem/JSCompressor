@@ -60,7 +60,8 @@ if st.button('Compress Code'):
         st.session_state.minified_code = compress_js(js_input)
         st.subheader("Compressed JavaScript Code")
         st.code(st.session_state.minified_code, language="javascript")
-        st.success("Compression successful!")
+        st.success("Compression successful!")  # Success message
+        st.toast("Compression Successful!")  # Pop-up like toast notification
     else:
         st.error("Please enter some JavaScript code to compress.")
 
