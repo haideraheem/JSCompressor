@@ -12,8 +12,8 @@ def compress_js(js_code):
     # Preserve strings by skipping them during Compression
     js_code = re.sub(string_pattern, preserve_strings, js_code)
 
-    # Remove single-line comments (excluding URLs)
-    js_code = re.sub(r'(?<!http:|https:)//.*', '', js_code)
+    # Remove single-line comments, but **not** URLs (http:// or https://)
+    js_code = re.sub(r'//(?!\s*www\.|https?:).*', '', js_code)
 
     # Remove multi-line comments
     js_code = re.sub(r'/\*[\s\S]*?\*/', '', js_code)
