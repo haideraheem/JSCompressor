@@ -1,6 +1,8 @@
 import streamlit as st
 import re
 
+import re
+
 def compress_js(js_code):
     # Function to preserve strings and template literals
     def preserve_strings(m):
@@ -8,28 +10,40 @@ def compress_js(js_code):
 
     # Regex to match strings ('...' or "..." or `...`)
     string_pattern = r'(["\'`])(?:\\.|(?!\1).)*\1'
-
-    # Preserve strings by skipping them during Compression
+    
+    # Preserve strings before modifying the code
     js_code = re.sub(string_pattern, preserve_strings, js_code)
 
-    # Remove single-line comments, but **not** URLs (http:// or https://)
-    js_code = re.sub(r'//(?!\s*www\.|https?:).*', '', js_code)
+    # **Protect URLs from being modified**
+    url_pattern = r'https?://[^\s]+'
+    urls = re.findall(url_pattern, js_code)  # Extract URLs
+    url_placeholders = {url: f"__URL_{i}__" for i, url in enumerate(urls)}
 
-    # Remove multi-line comments
+    for url, placeholder in url_placeholders.items():
+        js_code = js_code.replace(url, placeholder)
+
+    # **Remove single-line comments but NOT URLs**
+    js_code = re.sub(r'(^|\s)//(?!.*__URL_).*', '', js_code)  # Remove only actual comments
+
+    # **Remove multi-line comments**
     js_code = re.sub(r'/\*[\s\S]*?\*/', '', js_code)
 
-    # Compress by collapsing spaces, preserving critical separation
+    # **Restore URLs back into the code**
+    for url, placeholder in url_placeholders.items():
+        js_code = js_code.replace(placeholder, url)
+
+    # **Compress by collapsing spaces while preserving critical separation**
     js_code = re.sub(r'\s*([{};,:=()<>+\-*/&|!])\s*', r'\1', js_code)
 
-    # Ensure reserved words are preserved with necessary spaces
+    # **Ensure reserved words are preserved with necessary spaces**
     reserved_words = r'\b(await|break|case|catch|class|const|continue|debugger|default|' \
                      r'delete|do|else|enum|export|extends|false|finally|for|function|' \
                      r'if|import|in|instanceof|new|null|return|super|switch|this|throw|' \
                      r'true|try|typeof|var|void|while|with|yield|arguments|eval|' \
                      r'implements|interface|package|private|protected|public|static|let)\b'
-    
+
     js_code = re.sub(rf'{reserved_words}\s+', r'\1 ', js_code)
-    
+
     return js_code
 
 st.title('JavaScript Compressor')
