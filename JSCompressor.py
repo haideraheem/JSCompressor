@@ -66,8 +66,8 @@ with tabs[0]:
             st.subheader("Compressed JavaScript Code")
             st.code(st.session_state.minified_code, language="javascript")  # Display compressed code
             
-            # Pop-up for compression success
-            st.toast("Compression successful!", icon="✅", key="compress_success")  # Pop-up notification
+            # Success message for compression
+            st.success("Compression successful!")  # Success message
         else:
             st.error("Please enter some JavaScript code to compress.")  # Error message if input is empty
 
@@ -96,8 +96,8 @@ with tabs[1]:
             st.subheader("Beautified JavaScript Code")
             st.code(st.session_state.beautified_code, language="javascript")  # Display beautified code
             
-            # Pop-up for beautification success
-            st.toast("Beautification successful!", icon="✅", key="beautify_success")  # Pop-up notification
+            # Success message for beautification
+            st.success("Beautification successful!")  # Success message
         else:
             st.error("Please enter some JavaScript code to beautify.")  # Error message if input is empty
 
