@@ -29,7 +29,7 @@ def compress_js(js_code):
     reserved_words = r'\b(await|break|case|catch|class|const|continue|debugger|default|' \
                      r'delete|do|else|enum|export|extends|false|finally|for|function|' \
                      r'if|import|in|instanceof|new|null|return|super|switch|this|throw|' \
-                     r'true|try|typeof|var|void|while|with|yield|arguments|eval|' \
+                     r'true|try|typeof|var|void|while|with|yield|arguments|div|h3|eval|' \
                      r'implements|interface|package|private|protected|public|static|let)\b'
     js_code = re.sub(rf'{reserved_words}\s+', r'\1 ', js_code)
 
