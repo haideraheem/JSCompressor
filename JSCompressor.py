@@ -4,7 +4,7 @@ from jsbeautifier import beautify
 
 # Function to compress JavaScript code
 def compress_js(js_code):
-    # Preserve strings, template literals, and URLs
+    # Preserve strings and template literals
     string_pattern = r'(["\'`])(?:\\.|(?!\1).)*\1'
     url_pattern = r'https?://[^\s]+|(?<=\s)//[^\s]+'
     
@@ -15,7 +15,7 @@ def compress_js(js_code):
         js_code = js_code.replace(url, placeholder)
 
     # Remove comments
-    js_code = re.sub(r'(?<!:)//.*', '', js_code)  # Remove single-line comments (except in URLs)
+    js_code = re.sub(r'(?<!:)//.*', '', js_code)  # Keep URLs intact
     js_code = re.sub(r'/\*[\s\S]*?\*/', '', js_code)  # Remove multi-line comments
 
     # Restore URLs
@@ -26,19 +26,24 @@ def compress_js(js_code):
     js_code = re.sub(r'\s*([{};,:=()<>+\-*/&|!])\s*', r'\1', js_code)
     js_code = re.sub(r'\s*\?\s*', '?', js_code)  # Remove spaces in ternary operators
 
-    # Remove spaces around JSX style properties
-    js_code = re.sub(r'(?<=\{)([^}]+)(?=\})', lambda m: m.group(0).replace(" ", ""), js_code)
+    # Fix JSX styles (ensuring numbers in styles are preserved correctly)
+    js_code = re.sub(r'(?<=[: ])(\d+)px(\d+)px', r'\1px \2px', js_code)
+    js_code = re.sub(r'(?<=rgba\()\d+,\d+,\d+,\d+\.\d+(?=\))', lambda m: m.group(0).replace(" ", ""), js_code)
 
-    # Remove spaces after reserved words (optional)
+    # Remove trailing commas in JSX style objects
+    js_code = re.sub(r',\s*}', '}', js_code)
+
+    # Remove unnecessary semicolons in JSX
+    js_code = re.sub(r';(?=\s*<)', '', js_code)
+
+    # Handle reserved words properly
     reserved_words = r'\b(await|break|case|catch|class|const|continue|debugger|default|' \
                      r'delete|do|else|enum|export|extends|false|finally|for|function|' \
                      r'if|import|in|instanceof|new|null|return|super|switch|this|throw|' \
                      r'true|try|typeof|var|void|while|with|yield|arguments|eval|' \
                      r'implements|interface|package|private|protected|public|static|let)\b'
-    js_code = re.sub(rf'{reserved_words}\s+', r'\1 ', js_code)
 
-    # Remove unnecessary semicolons in JSX
-    js_code = re.sub(r';(?=\s*<)', '', js_code)
+    js_code = re.sub(rf'({reserved_words})\s+', r'\1 ', js_code)  # Add capturing group
 
     return js_code
 
