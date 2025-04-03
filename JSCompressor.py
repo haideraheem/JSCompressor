@@ -4,28 +4,36 @@ from jsbeautifier import beautify
 
 # Function to compress JavaScript code
 def compress_js(js_code):
+    # Helper function to preserve strings during the compression process
     def preserve_strings(m):
         return m.group(0)
 
+    # Regular expression to identify string literals (single, double, and template literals)
     string_pattern = r'(["\'`])(?:\\.|(?!\1).)*\1'
     js_code = re.sub(string_pattern, preserve_strings, js_code)
 
+    # Identify and temporarily replace URLs and comments to prevent modification during compression
     url_pattern = r'https?://[^\s]+|(?<=\s)//[^\s]+'
     urls = re.findall(url_pattern, js_code)
     url_placeholders = {url: f"__URL_{i}__" for i, url in enumerate(urls)}
 
+    # Replace URLs with placeholders
     for url, placeholder in url_placeholders.items():
         js_code = js_code.replace(url, placeholder)
 
-    js_code = re.sub(r'(?<!:)//.*', '', js_code)
-    js_code = re.sub(r'/\*[\s\S]*?\*/', '', js_code)
+    # Remove single-line comments and multi-line comments
+    js_code = re.sub(r'(?<!:)//.*', '', js_code)  # Single-line comments
+    js_code = re.sub(r'/\*[\s\S]*?\*/', '', js_code)  # Multi-line comments
 
+    # Restore the original URLs by replacing placeholders with the actual URLs
     for url, placeholder in url_placeholders.items():
         js_code = js_code.replace(placeholder, url)
 
+    # Remove unnecessary spaces around operators and symbols
     js_code = re.sub(r'\s*([{};,:=()<>+\-*/&|!])\s*', r'\1', js_code)
-    js_code = re.sub(r'\s*\?\s*', '?', js_code)
+    js_code = re.sub(r'\s*\?\s*', '?', js_code)  # Removing spaces around ternary operator
 
+    # Ensure reserved words are properly spaced
     reserved_words = r'\b(await|break|case|catch|class|const|continue|debugger|default|' \
                      r'delete|do|else|enum|export|extends|false|finally|for|function|' \
                      r'if|import|in|instanceof|new|null|return|super|switch|this|throw|' \
@@ -35,56 +43,68 @@ def compress_js(js_code):
 
     return js_code
 
-# Function to beautify JavaScript code
+# Function to beautify JavaScript code (using the jsbeautifier library)
 def beautify_js(js_code):
     return beautify(js_code)
 
-# Streamlit interface
+# Streamlit interface setup
 st.title('JavaScript Code Processor')
 
 # Tabs for Compress and Beautify
 tabs = st.tabs(["Compress", "Beautify"])
 
+# **Compress Tab** - Handle the compression of JavaScript code
 with tabs[0]:
     st.markdown("""
     This app compresses JavaScript code by removing unnecessary spaces, tabs, newlines, and comments, while preserving strings and template literals.
     Paste your code below and click "Compress Code" to compress it.
     """)
+    
+    # Text input area for entering JavaScript code to compress
     js_input = st.text_area("Paste your JavaScript code here", height=300, key="compress_input")
 
+    # Initializing session state to hold compressed code
     if 'minified_code' not in st.session_state:
         st.session_state.minified_code = None
 
+    # Button to trigger compression
     if st.button('Compress Code', key="compress_button"):
         if js_input.strip():
-            st.session_state.minified_code = compress_js(js_input)
+            st.session_state.minified_code = compress_js(js_input)  # Perform compression
             st.subheader("Compressed JavaScript Code")
-            st.code(st.session_state.minified_code, language="javascript")
-            st.success("Compression successful!")
+            st.code(st.session_state.minified_code, language="javascript")  # Display compressed code
+            st.success("Compression successful!")  # Success message widget
         else:
-            st.error("Please enter some JavaScript code to compress.")
+            st.error("Please enter some JavaScript code to compress.")  # Error message if input is empty
 
+    # Provide a download button if compression is successful
     if st.session_state.minified_code:
         st.download_button("Download Compressed JS", st.session_state.minified_code, "compressed.js", "text/javascript", key="download_compressed")
 
+# **Beautify Tab** - Handle the beautification of JavaScript code
 with tabs[1]:
     st.markdown("""
     This app beautifies JavaScript code by adding appropriate indentation and formatting.
     Paste your code below and click "Beautify Code" to beautify it.
     """)
+    
+    # Text input area for entering JavaScript code to beautify
     js_input_beautify = st.text_area("Paste your JavaScript code here", height=300, key="beautify_input")
 
+    # Initializing session state to hold beautified code
     if 'beautified_code' not in st.session_state:
         st.session_state.beautified_code = None
 
+    # Button to trigger beautification
     if st.button('Beautify Code', key="beautify_button"):
         if js_input_beautify.strip():
-            st.session_state.beautified_code = beautify_js(js_input_beautify)
+            st.session_state.beautified_code = beautify_js(js_input_beautify)  # Perform beautification
             st.subheader("Beautified JavaScript Code")
-            st.code(st.session_state.beautified_code, language="javascript")
-            st.success("Beautification successful!")
+            st.code(st.session_state.beautified_code, language="javascript")  # Display beautified code
+            st.success("Beautification successful!")  # Success message widget
         else:
-            st.error("Please enter some JavaScript code to beautify.")
+            st.error("Please enter some JavaScript code to beautify.")  # Error message if input is empty
 
+    # Provide a download button if beautification is successful
     if st.session_state.beautified_code:
         st.download_button("Download Beautified JS", st.session_state.beautified_code, "beautified.js", "text/javascript", key="download_beautified")
