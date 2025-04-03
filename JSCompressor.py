@@ -3,6 +3,8 @@ import re
 from jsbeautifier import beautify
 
 # Function to compress JavaScript code
+import re
+
 def compress_js(js_code):
     # Preserve strings and template literals
     string_pattern = r'(["\'`])(?:\\.|(?!\1).)*\1'
