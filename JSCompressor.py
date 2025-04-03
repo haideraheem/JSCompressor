@@ -43,9 +43,9 @@ def beautify_js(js_code):
 st.title('JavaScript Code Processor')
 
 # Tabs for Compress and Beautify
-tab = st.radio("Choose an option", ["Compress", "Beautify"])
+tabs = st.tabs(["Compress", "Beautify"])
 
-if tab == "Compress":
+with tabs[0]:
     st.markdown("""
     This app compresses JavaScript code by removing unnecessary spaces, tabs, newlines, and comments, while preserving strings and template literals.
     Paste your code below and click "Compress Code" to compress it.
@@ -67,7 +67,7 @@ if tab == "Compress":
     if st.session_state.minified_code:
         st.download_button("Download Compressed JS", st.session_state.minified_code, "compressed.js", "text/javascript")
 
-elif tab == "Beautify":
+with tabs[1]:
     st.markdown("""
     This app beautifies JavaScript code by adding appropriate indentation and formatting.
     Paste your code below and click "Beautify Code" to beautify it.
