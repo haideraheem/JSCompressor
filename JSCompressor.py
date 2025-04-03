@@ -6,46 +6,38 @@ from jsbeautifier import beautify
 import re
 
 def compress_js(js_code):
-    # Preserve strings and template literals
     string_pattern = r'(["\'`])(?:\\.|(?!\1).)*\1'
+    js_code = re.sub(string_pattern, lambda m: m.group(0), js_code)
+
     url_pattern = r'https?://[^\s]+|(?<=\s)//[^\s]+'
-    
     urls = re.findall(url_pattern, js_code)
     url_placeholders = {url: f"__URL_{i}__" for i, url in enumerate(urls)}
-    
     for url, placeholder in url_placeholders.items():
         js_code = js_code.replace(url, placeholder)
 
-    # Remove comments
-    js_code = re.sub(r'(?<!:)//.*', '', js_code)  # Keep URLs intact
-    js_code = re.sub(r'/\*[\s\S]*?\*/', '', js_code)  # Remove multi-line comments
+    js_code = re.sub(r'(?<!:)//.*', '', js_code)
+    js_code = re.sub(r'/\*[\s\S]*?\*/', '', js_code)
 
-    # Restore URLs
     for url, placeholder in url_placeholders.items():
         js_code = js_code.replace(placeholder, url)
 
-    # Remove unnecessary spaces around operators and braces
+    js_code = re.sub(r'(\d+)px(\d+)px', r'\1px \2px', js_code)
+    js_code = re.sub(r'([{,])(\w+):', r'\1 \2:', js_code)
+    js_code = re.sub(r':(\d+)(px|rem|em|%)', r':\1\2', js_code)
+
     js_code = re.sub(r'\s*([{};,:=()<>+\-*/&|!])\s*', r'\1', js_code)
-    js_code = re.sub(r'\s*\?\s*', '?', js_code)  # Remove spaces in ternary operators
-
-    # Fix JSX styles (ensuring numbers in styles are preserved correctly)
-    js_code = re.sub(r'(?<=[: ])(\d+)px(\d+)px', r'\1px \2px', js_code)
-    js_code = re.sub(r'(?<=rgba\()\d+,\d+,\d+,\d+\.\d+(?=\))', lambda m: m.group(0).replace(" ", ""), js_code)
-
-    # Remove trailing commas in JSX style objects
+    js_code = re.sub(r'\s*\?\s*', '?', js_code)
+    js_code = re.sub(r'\s*:\s*', ':', js_code)
     js_code = re.sub(r',\s*}', '}', js_code)
 
-    # Remove unnecessary semicolons in JSX
-    js_code = re.sub(r';(?=\s*<)', '', js_code)
-
-    # Handle reserved words properly
     reserved_words = r'\b(await|break|case|catch|class|const|continue|debugger|default|' \
                      r'delete|do|else|enum|export|extends|false|finally|for|function|' \
                      r'if|import|in|instanceof|new|null|return|super|switch|this|throw|' \
                      r'true|try|typeof|var|void|while|with|yield|arguments|eval|' \
                      r'implements|interface|package|private|protected|public|static|let)\b'
+    js_code = re.sub(rf'({reserved_words})(?=\s)', r'\1', js_code)
 
-    js_code = re.sub(rf'({reserved_words})\s+', r'\1 ', js_code)  # Add capturing group
+    js_code = re.sub(r'\s+', ' ', js_code).strip()  # Make everything one line
 
     return js_code
 
