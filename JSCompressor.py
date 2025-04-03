@@ -68,6 +68,9 @@ with tabs[0]:
             
             # Success message for compression
             st.success("Compression successful!")  # Success message
+            
+            # Display toast notification
+            st.toast("Compression Successful!")  # Pop-up like toast notification
         else:
             st.error("Please enter some JavaScript code to compress.")  # Error message if input is empty
 
@@ -98,6 +101,9 @@ with tabs[1]:
             
             # Success message for beautification
             st.success("Beautification successful!")  # Success message
+            
+            # Display toast notification
+            st.toast("Beautification Successful!")  # Pop-up like toast notification
         else:
             st.error("Please enter some JavaScript code to beautify.")  # Error message if input is empty
 
