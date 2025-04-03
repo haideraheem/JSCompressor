@@ -4,34 +4,41 @@ from jsbeautifier import beautify
 
 # Function to compress JavaScript code
 def compress_js(js_code):
-    def preserve_strings(m):
-        return m.group(0)
-
+    # Preserve strings, template literals, and URLs
     string_pattern = r'(["\'`])(?:\\.|(?!\1).)*\1'
-    js_code = re.sub(string_pattern, preserve_strings, js_code)
-
     url_pattern = r'https?://[^\s]+|(?<=\s)//[^\s]+'
+    
     urls = re.findall(url_pattern, js_code)
     url_placeholders = {url: f"__URL_{i}__" for i, url in enumerate(urls)}
-
+    
     for url, placeholder in url_placeholders.items():
         js_code = js_code.replace(url, placeholder)
 
-    js_code = re.sub(r'(?<!:)//.*', '', js_code)
-    js_code = re.sub(r'/\*[\s\S]*?\*/', '', js_code)
+    # Remove comments
+    js_code = re.sub(r'(?<!:)//.*', '', js_code)  # Remove single-line comments (except in URLs)
+    js_code = re.sub(r'/\*[\s\S]*?\*/', '', js_code)  # Remove multi-line comments
 
+    # Restore URLs
     for url, placeholder in url_placeholders.items():
         js_code = js_code.replace(placeholder, url)
 
+    # Remove unnecessary spaces around operators and braces
     js_code = re.sub(r'\s*([{};,:=()<>+\-*/&|!])\s*', r'\1', js_code)
-    js_code = re.sub(r'\s*\?\s*', '?', js_code)
+    js_code = re.sub(r'\s*\?\s*', '?', js_code)  # Remove spaces in ternary operators
 
+    # Remove spaces around JSX style properties
+    js_code = re.sub(r'(?<=\{)([^}]+)(?=\})', lambda m: m.group(0).replace(" ", ""), js_code)
+
+    # Remove spaces after reserved words (optional)
     reserved_words = r'\b(await|break|case|catch|class|const|continue|debugger|default|' \
                      r'delete|do|else|enum|export|extends|false|finally|for|function|' \
                      r'if|import|in|instanceof|new|null|return|super|switch|this|throw|' \
-                     r'true|try|typeof|var|void|while|with|yield|arguments|div|h3|eval|' \
+                     r'true|try|typeof|var|void|while|with|yield|arguments|eval|' \
                      r'implements|interface|package|private|protected|public|static|let)\b'
     js_code = re.sub(rf'{reserved_words}\s+', r'\1 ', js_code)
+
+    # Remove unnecessary semicolons in JSX
+    js_code = re.sub(r';(?=\s*<)', '', js_code)
 
     return js_code
 
